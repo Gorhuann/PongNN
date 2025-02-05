@@ -1,10 +1,12 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Pong
 {
     public class PlayerPaddle : Paddle
     {
         private Vector2 direction;
+        public int ballHit = 0;
 
         private void Update()
         {
@@ -14,6 +16,14 @@ namespace Pong
                 direction = Vector2.down;
             } else {
                 direction = Vector2.zero;
+            }
+        }
+        
+        private void OnTriggerEnter2D(Collider2D obj)
+        {
+            if (obj.name == "Ball")
+            {
+                ballHit++;
             }
         }
 

@@ -1,6 +1,8 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Newtonsoft.Json;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,17 +10,19 @@ namespace Pong
 {
     public class AIPaddle : Paddle
     {
-        public NeuralNetwork Brain { get; private set; }
+        public static NeuralNetwork Brain { get; private set; }
         private Vector2 direction;
         private Ball trackedBall;
         private string savePath;
         private string trainingCountPath;
-        public int TrainingCount { get; private set; }
+        public static int TrainingCount { get; private set; }
 
-        [SerializeField] private Text aiScoreText;
+        [SerializeField] private TextMeshProUGUI aiScoreText;
         [SerializeField] private Button resetButton;
+        [SerializeField] private BoxCollider collider;
 
         private int aiScore = 0;
+        public int ballHit = 0;
 
         private void Start()
         {
@@ -31,6 +35,15 @@ namespace Pong
 
             if (resetButton != null)
                 resetButton.onClick.AddListener(ResetAI);
+        }
+        
+        private void OnTriggerEnter2D(Collider2D obj)
+        {
+            if (obj.name == "Ball")
+            {
+                ballHit++;
+                aiScoreText.text = $"Hit réussi : {ballHit}";
+            }
         }
 
         private void FixedUpdate()
@@ -50,13 +63,14 @@ namespace Pong
             }
         }
 
-        public void ResetAI()
+        public static void ResetAIBrain()
         {
             Brain = new NeuralNetwork(3, 6, 1);
+        }
+        public void ResetAI()
+        {
             TrainingCount = 0;
             SaveTrainingCount();
-            if (aiScoreText != null)
-                aiScoreText.text = "AI Score: 0";
         }
 
         public void IncrementTrainingCount()
